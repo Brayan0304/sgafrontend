@@ -1,10 +1,19 @@
-import * as React from 'react';
-import Button from '@mui/material/Button';
+import React, { useState } from 'react';
+import SalaryTable from './SalaryTable';
+import AddSalaryForm from './AddSalaryForm';
 
-export default function DisableElevation() {
-  return (
-    <Button variant="contained" disableElevation>
-      Disable elevation
-    </Button>
-  );
-}
+const SalaryManagement = () => {
+    const [refresh, setRefresh] = useState(false);
+
+    const handleSalaryAdded = () => setRefresh(!refresh);
+
+    return (
+        <div>
+            <h2>Gestión de Salarios</h2>
+            <AddSalaryForm onSalaryAdded={handleSalaryAdded} />
+            <SalaryTable key={refresh} />
+        </div>
+    );
+};
+
+export default SalaryManagement;
