@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import PropTypes from "prop-types";
-import { alpha } from "@mui/material/styles";
 import {
   Box,
   Table,
@@ -15,48 +13,28 @@ import {
   Checkbox,
   Typography,
   Toolbar,
-  Tooltip,
-  IconButton,
-  TableSortLabel,
   Select,
   MenuItem,
   Button,
+  useMediaQuery,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { visuallyHidden } from "@mui/utils";
 
 export default function EnhancedTable() {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("name");
-  const [selected, setSelected] = useState(new Set()); // Usando Set para selección de empleados
+  const [selected, setSelected] = useState(new Set());
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [reports, setReports] = useState([]);
   const [selectedReport, setSelectedReport] = useState("");
   const [employees, setEmployees] = useState([]);
   const [reportData, setReportData] = useState(null);
+  const isMobile = useMediaQuery("(max-width:600px)");
 
-  // Fetch reports from API
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/api/reports")
-      .then((response) => setReports(response.data))
-      .catch((error) => alert("Error fetching reports: " + error));
+    axios.get("http://127.0.0.1:8000/api/reports").then((response) => setReports(response.data));
+    axios.get("http://127.0.0.1:8000/api/addstaff").then((response) => setEmployees(response.data));
   }, []);
-
-  // Fetch employees from API
-  useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/api/addstaff")
-      .then((response) => setEmployees(response.data))
-      .catch((error) => alert("Error fetching employees: " + error));
-  }, []);
-
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
@@ -77,47 +55,41 @@ export default function EnhancedTable() {
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event, newPage) => setPage(newPage);
-  const handleChangeRowsPerPage = (event) =>
-    setRowsPerPage(parseInt(event.target.value, 10));
-
   const handleReportSelect = (event) => {
     const reportId = event.target.value;
     setSelectedReport(reportId);
-
-    // Fetch report data by ID
-    axios
-      .get(`http://127.0.0.1:8000/api/reports/${reportId}`)
-      .then((response) => setReportData(response.data))
-      .catch((error) => alert("Error fetching report data: " + error));
+    axios.get(`http://127.0.0.1:8000/api/reports/${reportId}`).then((response) => setReportData(response.data));
   };
 
   const handlePrint = () => {
     if (selectedReport && selected.size > 0) {
       const employeeIds = Array.from(selected).join(";");
-
-      const data = {
-        report_id: selectedReport,
-        employee_ids: employeeIds,
-      };
-
+      const data = { report_id: selectedReport, employee_ids: employeeIds };
       axios
-        .post("http://127.0.0.1:8000/api/certificados", data, {
-          responseType: "blob",
-        })
+        .post("http://127.0.0.1:8000/api/certificados", data, { responseType: "blob" })
         .then((response) => {
+          // Crear un enlace temporal para mostrar el PDF
           const url = window.URL.createObjectURL(new Blob([response.data]));
-          window.open(url, "_blank");
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `reporte_${selectedReport}.pdf`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
         })
-        .catch((error) => alert("Error generating PDF: " + error));
+        .catch((error) => {
+          console.error("Error generando el PDF:", error);
+          alert("Ocurrió un error al generar el reporte.");
+        });
     } else {
       alert("Seleccione un reporte y al menos un empleado para imprimir.");
     }
   };
+  
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2, p: 2 }}>
+    <Box sx={{ width: "100%", padding: isMobile ? 1 : 3 }}>
+      <Paper sx={{ width: "100%", mb: 2, p: isMobile ? 1 : 2 }}>
         <Typography variant="h6" gutterBottom>
           Seleccionar Reporte
         </Typography>
@@ -141,46 +113,29 @@ export default function EnhancedTable() {
           variant="contained"
           color="primary"
           onClick={handlePrint}
-          sx={{ mt: 2 }}
-          disabled={!selectedReport || selected.size === 0} // Desactivar si no se selecciona reporte o empleados
+          sx={{ mt: 2, width: "100%" }}
+          disabled={!selectedReport || selected.size === 0}
         >
           Imprimir
         </Button>
       </Paper>
 
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <Toolbar
-          sx={{
-            pl: { sm: 2 },
-            pr: { xs: 1, sm: 1 },
-            bgcolor: (theme) =>
-              alpha(
-                theme.palette.primary.main,
-                theme.palette.action.activatedOpacity
-              ),
-          }}
-        >
+        <Toolbar>
           <Typography sx={{ flex: "1 1 100%" }} variant="h6" id="tableTitle">
             Empleados
           </Typography>
         </Toolbar>
         <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size="medium"
-          >
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="medium">
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
                     color="primary"
-                    indeterminate={
-                      selected.size > 0 && selected.size < employees.length
-                    }
+                    indeterminate={selected.size > 0 && selected.size < employees.length}
                     checked={employees.length > 0 && selected.size === employees.length}
                     onChange={handleSelectAllClick}
-                    inputProps={{ "aria-label": "select all employees" }}
                   />
                 </TableCell>
                 <TableCell>Nombre</TableCell>
@@ -191,37 +146,26 @@ export default function EnhancedTable() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {employees
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((employee, index) => {
-                  const isItemSelected = selected.has(employee.id);
-                  return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, employee.id)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={employee.id}
-                      selected={isItemSelected}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            "aria-labelledby": `enhanced-table-checkbox-${index}`,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>{employee.name}</TableCell>
-                      <TableCell>{employee.apellidos}</TableCell>
-                      <TableCell>{employee.cargo}</TableCell>
-                      <TableCell>{employee.municipio_expedicion}</TableCell>
-                      <TableCell>{employee.departamento_expedicion}</TableCell>
-                    </TableRow>
-                  );
-                })}
+              {employees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((employee) => (
+                <TableRow
+                  hover
+                  onClick={(event) => handleClick(event, employee.id)}
+                  role="checkbox"
+                  aria-checked={selected.has(employee.id)}
+                  tabIndex={-1}
+                  key={employee.id}
+                  selected={selected.has(employee.id)}
+                >
+                  <TableCell padding="checkbox">
+                    <Checkbox color="primary" checked={selected.has(employee.id)} />
+                  </TableCell>
+                  <TableCell>{employee.name}</TableCell>
+                  <TableCell>{employee.apellidos}</TableCell>
+                  <TableCell>{employee.cargo}</TableCell>
+                  <TableCell>{employee.municipio_expedicion}</TableCell>
+                  <TableCell>{employee.departamento_expedicion}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -231,8 +175,8 @@ export default function EnhancedTable() {
           count={employees.length}
           rowsPerPage={rowsPerPage}
           page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
         />
       </Paper>
     </Box>
