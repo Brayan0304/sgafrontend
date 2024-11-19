@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import sgaImage from '../images/SGA.jpg';
 import {
   Container,
   Typography,
@@ -9,10 +10,10 @@ import {
   Grid,
   Paper,
   Link,
-} from '@mui/material';
+} from "@mui/material";
 
 const Login = ({ onLogin }) => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showRegister, setShowRegister] = useState(false);
   const navigate = useNavigate();
 
@@ -23,35 +24,53 @@ const Login = ({ onLogin }) => {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/login', formData);
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/login",
+        formData
+      );
       alert(`Bienvenido ${response.data.user.name}`);
       onLogin(); // Activa la autenticación en el componente principal
-      navigate('/'); // Redirige al Home
+      navigate("/"); // Redirige al Home
     } catch (error) {
       console.error(error.response.data);
-      alert('Credenciales incorrectas');
+      alert("Credenciales incorrectas");
     }
   };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/register', formData);
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/register",
+        formData
+      );
       alert(response.data.message);
       setShowRegister(false); // Cambia a la pantalla de login tras registro exitoso
     } catch (error) {
       console.error(error.response.data);
-      alert('Error en el registro');
+      alert("Error en el registro");
     }
   };
 
   return (
     <Container maxWidth="sm">
-      <Paper elevation={3} style={{ padding: '2rem', marginTop: '2rem' }}>
+      <Paper
+        elevation={3}
+        style={{
+          padding: "2rem",
+          marginTop: "2rem",
+          backgroundImage: `url(${sgaImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <Typography variant="h4" gutterBottom align="center">
-          {showRegister ? 'Registro' : 'Iniciar Sesión'}
+          {showRegister ? "Registro" : "Iniciar Sesión"}
         </Typography>
-        <form onSubmit={showRegister ? handleRegisterSubmit : handleLoginSubmit}>
+        <form
+          onSubmit={showRegister ? handleRegisterSubmit : handleLoginSubmit}
+        >
           <Grid container spacing={2}>
             {showRegister && (
               <>
@@ -126,7 +145,7 @@ const Login = ({ onLogin }) => {
                 variant="contained"
                 color="primary"
               >
-                {showRegister ? 'Registrar' : 'Iniciar Sesión'}
+                {showRegister ? "Registrar" : "Iniciar Sesión"}
               </Button>
             </Grid>
             <Grid item xs={12} align="center">
@@ -136,8 +155,8 @@ const Login = ({ onLogin }) => {
                 onClick={() => setShowRegister(!showRegister)}
               >
                 {showRegister
-                  ? '¿Ya tienes una cuenta? Inicia sesión'
-                  : '¿No tienes una cuenta? Regístrate'}
+                  ? "¿Ya tienes una cuenta? Inicia sesión"
+                  : "¿No tienes una cuenta? Regístrate"}
               </Link>
             </Grid>
           </Grid>
