@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import sgaImage from '../images/SGA.jpg';
+import sgaImage from "../images/SGA.jpg";
 import {
   Container,
   Typography,
@@ -10,6 +10,7 @@ import {
   Grid,
   Paper,
   Link,
+  Box,
 } from "@mui/material";
 
 const Login = ({ onLogin }) => {
@@ -53,116 +54,131 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Paper
-        elevation={3}
+    <Paper
+      elevation={3}
+      style={{
+        position: "fixed", // Fija el componente en el viewport
+        top: 0, // Posición superior
+        left: 0, // Posición izquierda
+        right: 0, // Posición derecha
+        bottom: 0, // Posición inferior
+        backgroundImage: `url(${sgaImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        display: "flex", // Flexbox para centrar contenido
+        justifyContent: "center", // Centra horizontalmente
+        alignItems: "center", // Centra verticalmente
+      }}
+    >
+      <Box
         style={{
-          padding: "2rem",
-          marginTop: "2rem",
-          backgroundImage: `url(${sgaImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          backgroundColor: "white", // Fondo blanco
+          borderRadius: "8px", // Bordes redondeados para mejor estética
+          padding: "20px", // Espaciado interno
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Sombra sutil
         }}
       >
-        <Typography variant="h4" gutterBottom align="center">
-          {showRegister ? "Registro" : "Iniciar Sesión"}
-        </Typography>
-        <form
-          onSubmit={showRegister ? handleRegisterSubmit : handleLoginSubmit}
-        >
-          <Grid container spacing={2}>
-            {showRegister && (
-              <>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    name="id"
-                    label="NIT de la Empresa"
-                    variant="outlined"
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    name="name"
-                    label="Nombre"
-                    variant="outlined"
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    name="direccion"
-                    label="Dirección"
-                    variant="outlined"
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    name="telefono"
-                    label="Teléfono"
-                    variant="outlined"
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-              </>
-            )}
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                name="email"
-                label="Correo"
-                type="email"
-                variant="outlined"
-                onChange={handleChange}
-                required
-              />
+        <Container maxWidth="sm">
+          <Typography variant="h4" gutterBottom align="center">
+            {showRegister ? "Registro" : "Iniciar Sesión"}
+          </Typography>
+          <form
+            onSubmit={showRegister ? handleRegisterSubmit : handleLoginSubmit}
+          >
+            <Grid container spacing={2}>
+              {showRegister && (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      name="id"
+                      label="NIT de la Empresa"
+                      variant="outlined"
+                      onChange={handleChange}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      name="name"
+                      label="Nombre"
+                      variant="outlined"
+                      onChange={handleChange}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      name="direccion"
+                      label="Dirección"
+                      variant="outlined"
+                      onChange={handleChange}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      name="telefono"
+                      label="Teléfono"
+                      variant="outlined"
+                      onChange={handleChange}
+                      required
+                    />
+                  </Grid>
+                </>
+              )}
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  name="email"
+                  label="Correo"
+                  type="email"
+                  variant="outlined"
+                  onChange={handleChange}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  name="password"
+                  label="Contraseña"
+                  type="password"
+                  variant="outlined"
+                  onChange={handleChange}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                >
+                  {showRegister ? "Registrar" : "Iniciar Sesión"}
+                </Button>
+              </Grid>
+              <Grid item xs={12} align="center">
+                <Link
+                  component="button"
+                  variant="body2"
+                  onClick={() => setShowRegister(!showRegister)}
+                >
+                  {showRegister
+                    ? "¿Ya tienes una cuenta? Inicia sesión"
+                    : "¿No tienes una cuenta? Regístrate"}
+                </Link>
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                name="password"
-                label="Contraseña"
-                type="password"
-                variant="outlined"
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                color="primary"
-              >
-                {showRegister ? "Registrar" : "Iniciar Sesión"}
-              </Button>
-            </Grid>
-            <Grid item xs={12} align="center">
-              <Link
-                component="button"
-                variant="body2"
-                onClick={() => setShowRegister(!showRegister)}
-              >
-                {showRegister
-                  ? "¿Ya tienes una cuenta? Inicia sesión"
-                  : "¿No tienes una cuenta? Regístrate"}
-              </Link>
-            </Grid>
-          </Grid>
-        </form>
-      </Paper>
-    </Container>
+          </form>
+        </Container>
+      </Box>
+    </Paper>
   );
 };
 
