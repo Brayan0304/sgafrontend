@@ -39,21 +39,39 @@ function ReportForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (reportData.id) {
-      axios.put(`/api/reports/${reportData.id}`, reportData)
-        .then(response => {
+
+    const method = reportData.id ? 'put' : 'post';
+    const url = reportData.id ? `/api/reports/${reportData.id}` : '/api/reports';
+
+    axios[method](url, reportData)
+      .then(response => {
+        if (method === 'put') {
           setReports(reports.map(report => (report.id === reportData.id ? response.data.data : report)));
-          setReportData({});
-        })
-        .catch(error => console.error('Error al actualizar reporte:', error));
-    } else {
-      axios.post('/api/reports', reportData)
-        .then(response => {
+        } else {
           setReports([...reports, response.data.data]);
-          setReportData({});
-        })
-        .catch(error => console.error('Error al crear reporte:', error));
-    }
+        }
+        setReportData({
+          id: null,
+          titulo: '',
+          titulo_2: '',
+          parrafo: '',
+          expedicion: '',
+          tamano_letra_titulo: '',
+          tamano_letra_titulo_2: '',
+          tamano_letra_parrafo: '',
+          tamano_letra_expedicion: '',
+          margen_izquierdo: '',
+          margen_derecho: '',
+          margen_superior: '',
+          margen_inferior: '',
+          tamano_hoja: 'carta',
+          estilo_letra_titulo: '',
+          estilo_letra_titulo_2: '',
+          estilo_parrafo: '',
+          estilo_expedicion: '',
+        });
+      })
+      .catch(error => console.error('Error al guardar reporte:', error));
   };
 
   const handleEdit = (report) => {
@@ -75,159 +93,18 @@ function ReportForm() {
       </Typography>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Título"
-              fullWidth
-              name="titulo"
-              value={reportData.titulo}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Subtítulo"
-              fullWidth
-              name="titulo_2"
-              value={reportData.titulo_2}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Parrafo"
-              fullWidth
-              name="parrafo"
-              value={reportData.parrafo}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Expedición"
-              fullWidth
-              name="expedicion"
-              value={reportData.expedicion}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Tamaño de Letra Título"
-              fullWidth
-              name="tamano_letra_titulo"
-              value={reportData.tamano_letra_titulo}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Tamaño de Letra Subtítulo"
-              fullWidth
-              name="tamano_letra_titulo_2"
-              value={reportData.tamano_letra_titulo_2}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Tamaño de Letra Párrafo"
-              fullWidth
-              name="tamano_letra_parrafo"
-              value={reportData.tamano_letra_parrafo}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Tamaño de Letra Expedición"
-              fullWidth
-              name="tamano_letra_expedicion"
-              value={reportData.tamano_letra_expedicion}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Margen Izquierdo"
-              fullWidth
-              name="margen_izquierdo"
-              value={reportData.margen_izquierdo}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Margen Derecho"
-              fullWidth
-              name="margen_derecho"
-              value={reportData.margen_derecho}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Margen Superior"
-              fullWidth
-              name="margen_superior"
-              value={reportData.margen_superior}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Margen Inferior"
-              fullWidth
-              name="margen_inferior"
-              value={reportData.margen_inferior}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Tamaño de Hoja"
-              fullWidth
-              name="tamano_hoja"
-              value={reportData.tamano_hoja}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Estilo de Letra Título"
-              fullWidth
-              name="estilo_letra_titulo"
-              value={reportData.estilo_letra_titulo}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Estilo de Letra Subtítulo"
-              fullWidth
-              name="estilo_letra_titulo_2"
-              value={reportData.estilo_letra_titulo_2}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Estilo de Letra Párrafo"
-              fullWidth
-              name="estilo_parrafo"
-              value={reportData.estilo_parrafo}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Estilo de Letra Expedición"
-              fullWidth
-              name="estilo_expedicion"
-              value={reportData.estilo_expedicion}
-              onChange={handleChange}
-            />
-          </Grid>
+          {/* Inputs generados dinámicamente */}
+          {Object.keys(reportData).filter(key => key !== 'id').map((key) => (
+            <Grid item xs={12} md={6} key={key}>
+              <TextField
+                label={key.replace(/_/g, ' ')}
+                fullWidth
+                name={key}
+                value={reportData[key]}
+                onChange={handleChange}
+              />
+            </Grid>
+          ))}
           <Grid item xs={12}>
             <Button variant="contained" type="submit">
               {reportData.id ? 'Actualizar Reporte' : 'Crear Reporte'}
